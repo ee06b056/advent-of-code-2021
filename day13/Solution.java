@@ -53,9 +53,10 @@ public class Solution {
     }
 
     public static void solution1 (Set<Integer> map, int lengthX, int lengthY) {
-        char line = 'x';
+        // char line = 'x';
         int foldIndex = 655;
-        int newLengthX = 655, newLengthY = lengthY;
+        int newLengthX = 655; 
+        // int newLengthY = lengthY;
         Set<Integer> newMap = new HashSet<>();
         Iterator<Integer> i = map.iterator();
         while (i.hasNext()) {
@@ -103,7 +104,8 @@ public class Solution {
     public static Set<Integer> foldX (Set<Integer> dotSet, int XL, int YL, int foldIndex) {
         Set<Integer> newDotSet = new HashSet<>();
         Iterator<Integer> i = dotSet.iterator();
-        int newXL = foldIndex, newYL = YL;
+        int newXL = foldIndex;
+        // int newYL = YL;
         while (i.hasNext()) {
             int index = i.next();
             int x = index % XL, y = index / XL;
@@ -120,7 +122,8 @@ public class Solution {
     public static Set<Integer> foldY (Set<Integer> dotSet, int XL, int YL, int foldIndex) {
         Set<Integer> newDotSet = new HashSet<>();
         Iterator<Integer> i = dotSet.iterator();
-        int newXL = XL, newYL = foldIndex;
+        int newXL = XL;
+        // int newYL = foldIndex;
         while (i.hasNext()) {
             int index = i.next();
             int x = index % XL, y = index / XL;
