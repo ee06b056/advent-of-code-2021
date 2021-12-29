@@ -31,23 +31,21 @@ public class Solution {
             pairList.add(parsePairString(s));
         }
 
+        solution1(pairList);
 
-        System.out.println(list.size());
-        System.out.println(pairList.size());
-        Pair p = parsePairString("[[[[9,8],1],2],3]");
-        System.out.println(shouldExplode(p, 0));
-        p.leftPair.leftPair.leftPair.value = 14;
-        System.out.println(shouldSplit(p));
+        
+    }
 
-
-        // Pair p = parsePairString("[[0,[[0,9],[6,5]]],[[[5,3],[0,4]],[8,3]]]");
-        // System.out.println(p.isLeaf);
-        // System.out.println(p.leftPair.isLeaf);
-        // System.out.println(p.rightPair.isLeaf);
-        // System.out.println(p.leftPair.value);
-        // System.out.println(p.rightPair.value);
-
-
+    public static void solution1 (List<Pair> pairList) {
+        Pair p1 = pairList.get(0);
+        Pair p2 = pairList.get(1);
+        Pair fp = add(p1, p2);
+        reduce(fp);
+        for (int i = 2; i < pairList.size(); i++) {
+            fp = add(fp, pairList.get(i));
+            reduce(fp);
+        }
+        System.out.println("ans1: " + fp.magnitude());
     }
 
     public static Pair parsePairString (String pairString) {
@@ -124,6 +122,7 @@ public class Solution {
             shouldExplode = shouldExplode(p, 0);
             if (shouldExplode) {
                 explode(p);
+                continue;
             }
             shouldSplit = shouldSplit(p);
             if (shouldSplit) {
@@ -134,14 +133,74 @@ public class Solution {
     }
 
     public static void explode (Pair p) {
-        
+        explodeDfs(p, 0);
     }
 
-    public static void split (Pair p) {
+    public static int[] explodeDfs (Pair p, int level) {
+        if (p.isLeaf) return null;
+        if (p.leftPair.isLeaf && p.rightPair.isLeaf) {
+            if (level < 4) return null;
+            else {
+                p.isLeaf = true;
+                p.value = 0;
+                int leftValue = p.leftPair.value, rightValue = p.rightPair.value;
+                p.leftPair = null;
+                p.rightPair = null;
+                return new int[]{leftValue, rightValue};
+            }
+        }
+        int[] leftRes = explodeDfs(p.leftPair, level + 1);
 
+        if (leftRes != null) {
+            if (leftRes[1] > 0) {
+                addToLeftMost(p.rightPair, leftRes[1]);
+            }
+            return new int[]{leftRes[0], -1};
+        }
+
+        int[] rightRes = explodeDfs(p.rightPair, level + 1);
+        if (rightRes != null) {
+            if (rightRes[0] > 0) {
+                addToRightMost(p.leftPair, rightRes[0]);
+            }
+            return new int[]{-1, rightRes[1]};
+        }
+
+        return null;
     }
 
+    public static void addToRightMost (Pair p, int n) {
+        if (p.isLeaf) {
+            p.value += n;
+        } else {
+            addToRightMost(p.rightPair, n);
+        }
+    }
 
+    public static void addToLeftMost (Pair p, int n) {
+        if (p.isLeaf) {
+            p.value += n;
+        } else {
+            addToLeftMost(p.leftPair, n);
+        }
+    }
+
+    public static boolean split (Pair p) {
+        if (p.isLeaf) {
+            if (p.value >= 10) {
+                p.leftPair = new Pair(p.value / 2);
+                p.rightPair = new Pair(p.value / 2 + p.value % 2);
+                p.isLeaf = false;
+                p.value = 0;
+                return true;
+            } else {
+                return false;
+            }
+        }
+        boolean leftRes = split(p.leftPair);
+        if (leftRes) return true;
+        return split(p.rightPair);
+    }
 
 
 }
@@ -162,5 +221,22 @@ class Pair {
         this.isLeaf = true;
         this.value = leafValue;
         this.leftPair = this.rightPair = null;
+    }
+
+    public void print () {
+        if (this.isLeaf) {
+            System.out.print(this.value);
+        } else {
+            System.out.print("[");
+            this.leftPair.print();
+            System.out.print(",");
+            this.rightPair.print();
+            System.out.print("]");
+        }
+    }
+
+    public int magnitude () {
+        if (this.isLeaf) return this.value;
+        return 3 * this.leftPair.magnitude() + 2 * this.rightPair.magnitude();
     }
 }
