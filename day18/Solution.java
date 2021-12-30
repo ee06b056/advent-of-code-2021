@@ -31,7 +31,8 @@ public class Solution {
             pairList.add(parsePairString(s));
         }
 
-        solution1(pairList);
+        // solution1(pairList);
+        solution2(list);
 
         
     }
@@ -46,6 +47,25 @@ public class Solution {
             reduce(fp);
         }
         System.out.println("ans1: " + fp.magnitude());
+    }
+
+    public static void solution2 (List<String> pairStringList) {
+
+        int maxMagnitude = Integer.MIN_VALUE;
+        for (int i = 0; i < pairStringList.size() - 1; i++) {
+            for (int j = i + 1; j < pairStringList.size(); j++) {
+                Pair p1 = parsePairString(pairStringList.get(i));
+                Pair p2 = parsePairString(pairStringList.get(i));
+                Pair p3 = parsePairString(pairStringList.get(j));
+                Pair p4 = parsePairString(pairStringList.get(j));
+                Pair p5 = add(p1, p3), p6 = add(p4, p2);
+                reduce(p5);
+                reduce(p6);
+                maxMagnitude = Math.max(maxMagnitude, p5.magnitude());
+                maxMagnitude = Math.max(maxMagnitude, p6.magnitude());
+            }
+        }
+        System.out.println("ans 2: " + maxMagnitude);
     }
 
     public static Pair parsePairString (String pairString) {
