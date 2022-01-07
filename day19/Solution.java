@@ -50,46 +50,71 @@ public class Solution {
         }
 
         
-        List<int[]> scanner0coor = scannerMap.get(0);
-        List<int[]> scanner0coorR = rotateX(scanner0coor, 180);
-        for (int[] coor : scanner0coorR) {
-            for (int c : coor) {
+        solution1(scannerMap);
+        
+
+        
+        
+    }
+
+    public static void solution1 (Map<Integer, List<int[]>> scannerMap) {
+        List<int[][]> matrixs = getAllRotationMatrix();
+        List<int[]> coor0 = scannerMap.get(1);
+        List<int[]> coor1 = scannerMap.get(4);
+        Dif dif01 = findDif(coor0, coor1, matrixs);
+        int[] v = dif01.v;
+        for (int vv : v) {
+            System.out.print(vv + ",");
+        }
+        System.out.println();
+        int[][] rm = dif01.rm;
+        for (int[] r : rm) {
+            for (int c : r) {
                 System.out.print(c + ",");
             }
             System.out.println();
         }
+        List<int[]> newCoor1 = multiply(coor1, rm);
+        // for (int[] c : newCoor1) {
+        //     for (int nc : c) {
+        //         System.out.print(nc + ",");
+        //     }
+        //     System.out.println();
+        // }
+        
     }
 
-    public static void solution1 (Map<Integer, List<int[]>> scannerMap) {
-        int[][] matrix = new int[3][3];
-        for (int[] m : matrix) {
-            
+    public static Dif findDif (List<int[]> l1, List<int[]> l2, List<int[][]> rotateMatrixs) {
+        for (int[][] rotateMatrix : rotateMatrixs) {
+            List<int[]> newL2 = multiply(l2, rotateMatrix);
+            int[] v = isOverlapping(l1, newL2);
+            if (v != null) return new Dif(rotateMatrix, v);
         }
+        return null;
     }
 
-    public static boolean isOverlapping (List<int[]> l1, List<int[]> l2) {
-        Set<String> l2Set = new HashSet<>();
-        for (int[] coor : l2) {
-            l2Set.add(getString(coor));
+    public static int[] isOverlapping (List<int[]> l1, List<int[]> l2) {
+        Set<String> l1Set = new HashSet<>();
+        for (int[] coor : l1) {
+            l1Set.add(getString(coor));
         }
-        // System.out.println("size: " + l2Set.size());
         for (int i = 0; i < l1.size(); i++) {
             for (int j = 0; j < l2.size(); j++) {
                 int count = 0;
                 int[] ic = l1.get(i), jc = l2.get(j);
-                int[] v = minus(l2.get(j), l1.get(i));
-                for (int k = 0; k < l1.size(); k++) {
-                    int[] nic = add(l1.get(k), v);
-                    if (l2Set.contains(getString(nic))) {
+                int[] v = minus(ic, jc);
+                for (int k = 0; k < l2.size(); k++) {
+                    int[] nic = add(l2.get(k), v);
+                    if (l1Set.contains(getString(nic))) {
                         count++;
                     }
                 }
-                if (count >= 12) return true;
-                // System.out.println("count: " + count);
+                
+                if (count >= 12) return v;
 
             }
         }
-        return false;
+        return null;
     }
 
     public static String getString (int[] a) {
@@ -138,6 +163,18 @@ public class Solution {
         return res;
     }
 
+    public static int[][] multi (int[][] a, int[][] b) {
+        int[][] c = new int[a.length][b[0].length];
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < b[0].length; j++) {
+                for (int k = 0; k < a[0].length; k++) {
+                    c[i][j] += a[i][k] * b[k][j];
+                }
+            }
+        } 
+        return c;
+    }
+
     public static List<int[]> rotateX (List<int[]> a, int degree) {
         int[][] transforM = new int[][]{{1,            0,           0},
                                         {0,  cos(degree), sin(degree)},
@@ -169,7 +206,19 @@ public class Solution {
         int[][] initM = new int[][]{{1, 0, 0},
                                     {0, 1, 0},
                                     {0, 0, 1}};
-        return null;
+        int[] degrees = new int[]{0, 90, 180, 270};
+        for (int zdegree : degrees) {
+            for (int xdegree : degrees) {
+                matrixs.add(multi(multi(initM, rotateAxisZ(zdegree)), rotateAxisX(xdegree)));
+            }
+        }
+        for (int degree : degrees) {
+            matrixs.add(multi(multi(initM, rotateAxisY(90)), rotateAxisX(degree)));
+        }
+        for (int degree : degrees) {
+            matrixs.add(multi(multi(initM, rotateAxisY(270)), rotateAxisX(degree)));
+        }
+        return matrixs;
     }
 
     public static int sin (int degree) {
@@ -203,6 +252,11 @@ public class Solution {
 
 }
 
-class Node {
-
+class Dif {
+    int[][] rm;
+    int[] v;
+    public Dif (int[][] rm, int[] v) {
+        this.rm = rm;
+        this.v = v;
+    }
 }
